@@ -2,7 +2,6 @@ To compile in mpi
 
 ```
 mpicc <filename.c> -o <tag name>
-
 ```
 To run the code
 ```
