@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <mpi.h>
 
 #define g2f(i,j)= ((NX-1)*i=j)
 
@@ -80,17 +80,16 @@ for  (int j=0; j<NY; j++){
 
         }// end exit
         //printf("(%d, %d) ", (int)nrnumber of iterations until divergence , (int)ni);double cx = 5;
-        if(iterations == maxIt) {
-            printf("1");
-        }
-        else{
-            printf("0");
-        }
 
+        printf("it= %d \n", iterations);
+        printf("module = %f\n", module);
+
+        if()
+
+        
 
         
     }
-    printf("\n");
 }
 
 

@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+//#include <mpi.h>
 
 #define g2f(i,j)= ((NX-1)*i=j)
 
-const int N = 10;
+const int N = 100;
 
 int main(int argc, char **argv) {
+
+   // MPI_Init(&argc, &argv);
+    //MPI_Comm_size(MPI_COMM_WORLD, &size_Of_Cluster);
+    //MPI_Comm_rank(MPI_COMM_WORLD, &process_Rank);
+
 
     double a1, a2, b1, b2, a1_2, b1_2, rmax, r2, module;
 
@@ -54,8 +59,6 @@ for  (int j=0; j<NY; j++){
 
         iterations =0;
 
-
-
         while (module <r2 && iterations<maxIt){
         //first z
         
@@ -74,26 +77,24 @@ for  (int j=0; j<NY; j++){
         b1= b2;
 
         iterations ++;
-        //printf("module = %f\n", module);
-        
-
 
         }// end exit
-        //printf("(%d, %d) ", (int)nrnumber of iterations until divergence , (int)ni);double cx = 5;
-        if(iterations == maxIt) {
+
+         if(iterations == maxIt) {
             printf("1");
         }
         else{
-            printf("0");
+            printf(" ");
         }
-
 
         
     }
     printf("\n");
+
+//      MPI_Barrier(MPI_COMM_WORLD);
 }
 
-
-//printf("\n");
+ //MPI_Finalize();
+return 0;
 
 }
