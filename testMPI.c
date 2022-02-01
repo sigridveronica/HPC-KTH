@@ -5,12 +5,15 @@
 //S'ha d'arreglar: no funciona del tot be perque shauria de fer amb send receive amb el teu algoritme. Si no no. 
 
 #define g2m(i,j) (i+ NX*j)
-#define proc2Glob(i, j) (i+ posProcX*accuracy + (j+posProcY)*NX)
+#define proc2Glob(i, j) (i+ posProcX*accuracy + (j+posProcY*accuracy)*NX)
 #define prova(i,j) (j*NX +i) + NX*process_Rank //Aquest algoritme es de prova per veure si es podia fer un barrido horitzontal pero no es pot fer aixi que cal seguir treballant en el tema 
-
+#define local(i, j) (j*accuracy +i)
 
 int main(int argc, char** argv){
-      
+    int borrar =2;
+
+
+
       MPI_Init(&argc, &argv);
 
     int process_Rank, nProcs;
@@ -63,8 +66,9 @@ int main(int argc, char** argv){
        int a;
 
 
-        posProcX = process_Rank%NX;
-        posProcY = process_Rank/NX;
+    
+
+        
 
 double ref;
 double *localField = NULL;
@@ -73,14 +77,20 @@ double *localField = NULL;
   // if(process_Rank== 2){
 
     localField  =  (double*)malloc(accuracy*accuracy*sizeof(double));
-        printf("I am proessor  %d\n", process_Rank);
-         posProcX = process_Rank%NX;
-    posProcY = process_Rank/NX;
+       // printf("I am proessor  %d\n", process_Rank);
+               posProcX = process_Rank%nProcsX;
+            posProcY = process_Rank/nProcsY;
+
+         //printf("I am process %d, index (%d, %d)\n", process_Rank, posProcX, posProcY);
+
+if (process_Rank==borrar) {
+    
+
         for (int j=0; j<accuracy ; j++) {
             for (int i=0; i<accuracy; i++) {
 
                 ref = proc2Glob(i, j);
-                ref = prova(i,j);
+                
 
 
                 localField[(accuracy*j+i)]= ref;
@@ -89,36 +99,42 @@ double *localField = NULL;
                //MPI_Gather(ref, 1, MPI_DOUBLE, (GlobalField + proc2Glob(i,j)), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             
              
-                //printf("%d ", proc2Glob(i,j));
-                
+                //printf("%d ", (int)localField[(accuracy*j+1)]);
+                printf("%d ",(int)ref);
             }
-          // printf("\n");
+          printf("\n");
         }
+}
+if (process_Rank==borrar){
+MPI_Send(localField, sizeof(localField), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
 
-   //}
+}
 
-   
-   MPI_Gather(localField, accuracy*accuracy , MPI_DOUBLE, GlobalField , accuracy*accuracy, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-   // printf("\n");
-
-   
-        //free(GlobalField);
 MPI_Barrier(MPI_COMM_WORLD);
 
-//MPI_Send(localField, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
-     
-     
-
+/*
 
 if (process_Rank==0){
-/*
- for (int k=0; k<nProcs;k++) {
-    MPI_Recv(localField, 1, MPI_DOUBLE, k, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+ //for (int k=0; k<nProcs;k++) {
+ int k=2;
+    MPI_Recv(localField, sizeof(localField), MPI_DOUBLE, k, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+   posProcX = k%nProcsX;
+   posProcY =  k/nProcsX;
+
+  for (int i=0; i<accuracy; i++) {
+     for (int j=0; j<accuracy ; j++) {
           
+                GlobalField[proc2Glob(i,j)] = localField[i+j*(accuracy)];
+                //printf("%ld ", sizeof(localField) );
+            }
+           // printf("\n");
+     }
+     //printf ("\n \n, Hello, I am proc= %d, %d   %d \n",k, posProcX, posProcY);
+   //}
 
-     
-   }*/
+
 
     printf ("\n \n");
       for (int j=0; j<NY; j++){
@@ -129,8 +145,8 @@ if (process_Rank==0){
                 //GlobalField[g2m(i,j)] = g2m(i,j);
                 //printf("%d ", (int)GlobalField[g2m(i,j)]);
 
-                a = (int)(GlobalField[proc2Glob(i,j)]);
-                printf("%d ", a);
+                a = (int)(GlobalField[NX*j+i]);
+                printf("%d ",a);
             }
             printf("\n");
         }
@@ -140,7 +156,7 @@ if (process_Rank==0){
           free(GlobalField);
     }
 
-
+*/
 
    
 
