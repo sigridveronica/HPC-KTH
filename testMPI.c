@@ -66,10 +66,6 @@ int main(int argc, char** argv){
        int a;
 
 
-    
-
-        
-
 double ref;
 double *localField = NULL;
               
@@ -83,7 +79,7 @@ double *localField = NULL;
 
          //printf("I am process %d, index (%d, %d)\n", process_Rank, posProcX, posProcY);
 
-if (process_Rank==borrar) {
+//if (process_Rank==borrar) {
     
 
         for (int j=0; j<accuracy ; j++) {
@@ -96,29 +92,28 @@ if (process_Rank==borrar) {
                 localField[(accuracy*j+i)]= ref;
                 
               
-               //MPI_Gather(ref, 1, MPI_DOUBLE, (GlobalField + proc2Glob(i,j)), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            
-             
-                //printf("%d ", (int)localField[(accuracy*j+1)]);
-                printf("%d ",(int)ref);
+               
+                printf("%d ",(int)localField[(accuracy*j+i)]);
             }
           printf("\n");
         }
-}
-if (process_Rank==borrar){
-MPI_Send(localField, sizeof(localField), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+//}
 
-}
+
+//if (process_Rank==borrar){
+MPI_Send(localField, 16, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+//printf("Je;pppppp    %d",(int)sizeof(localField));
+//}
 
 MPI_Barrier(MPI_COMM_WORLD);
 
-/*
+
 
 if (process_Rank==0){
 
- //for (int k=0; k<nProcs;k++) {
- int k=2;
-    MPI_Recv(localField, sizeof(localField), MPI_DOUBLE, k, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+ for (int k=0; k<nProcs;k++) {
+ 
+    MPI_Recv(localField, 16, MPI_DOUBLE, k, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
    posProcX = k%nProcsX;
    posProcY =  k/nProcsX;
@@ -128,12 +123,11 @@ if (process_Rank==0){
           
                 GlobalField[proc2Glob(i,j)] = localField[i+j*(accuracy)];
                 //printf("%ld ", sizeof(localField) );
+                  printf("%d ",(int)localField[(accuracy*j+i)]);
             }
-           // printf("\n");
+            printf("\n");
      }
-     //printf ("\n \n, Hello, I am proc= %d, %d   %d \n",k, posProcX, posProcY);
-   //}
-
+ }
 
 
     printf ("\n \n");
@@ -156,7 +150,7 @@ if (process_Rank==0){
           free(GlobalField);
     }
 
-*/
+
 
    
 
