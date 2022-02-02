@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
+#include <string.h>
 
-//S'ha d'arreglar: no funciona del tot be perque shauria de fer amb send receive amb el teu algoritme. Si no no. 
 
 #define g2m(i,j) (i+ NX*j)
 #define proc2Glob(i, j) (i+ posProcX*accuracy + (j+posProcY*accuracy)*NX)
-#define prova(i,j) (j*NX +i) + NX*process_Rank //Aquest algoritme es de prova per veure si es podia fer un barrido horitzontal pero no es pot fer aixi que cal seguir treballant en el tema 
+#define prova(i,j) (j*NX +i) + NX*process_Rank 
 #define local(i, j) (j*accuracy +i)
+
+int mandelF(int N, double rmax, int i, int j);
 
 int main(int argc, char** argv){
     int borrar =2;
@@ -19,7 +21,8 @@ int main(int argc, char** argv){
     int process_Rank, nProcs;
 
     //Number of cells for each processor
-    int accuracy = 4;
+    int accuracy = 100;
+    
 
 
     MPI_Comm_size(MPI_COMM_WORLD, &nProcs);
@@ -61,49 +64,39 @@ int main(int argc, char** argv){
             posProcX = process_Rank%nProcsX;
             posProcY = process_Rank/nProcsY;
 
-       //printf("X = %d, Y= %d, and Processor %d \n", posProcX, posProcY, process_Rank);
 
        int a;
 
 
-double ref;
+int ref;
 double *localField = NULL;
               
 
-  // if(process_Rank== 2){
-
     localField  =  (double*)malloc(accuracy*accuracy*sizeof(double));
-       // printf("I am proessor  %d\n", process_Rank);
-               posProcX = process_Rank%nProcsX;
+            
+            posProcX = process_Rank%nProcsX;
             posProcY = process_Rank/nProcsY;
-
-         //printf("I am process %d, index (%d, %d)\n", process_Rank, posProcX, posProcY);
-
-//if (process_Rank==borrar) {
-    
 
         for (int j=0; j<accuracy ; j++) {
             for (int i=0; i<accuracy; i++) {
 
                 ref = proc2Glob(i, j);
-                
+                ref = mandelF(NX, 2, ref%NX, ref/NX); // this should be uncommented when it works
 
-
+   
                 localField[(accuracy*j+i)]= ref;
-                
-              
-               
-                printf("%d ",(int)localField[(accuracy*j+i)]);
+
+
+           
             }
-          printf("\n");
         }
-//}
 
+int nMessages;
+nMessages =10;// accuracy*accuracy;
 
-//if (process_Rank==borrar){
-MPI_Send(localField, 16, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
-//printf("Je;pppppp    %d",(int)sizeof(localField));
-//}
+MPI_Send(localField, nMessages, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+
+//printf("I am processor %d and indexes (%d,%d) \n", process_Rank, posProcX, posProcY);
 
 MPI_Barrier(MPI_COMM_WORLD);
 
@@ -112,26 +105,28 @@ MPI_Barrier(MPI_COMM_WORLD);
 if (process_Rank==0){
 
  for (int k=0; k<nProcs;k++) {
- 
-    MPI_Recv(localField, 16, MPI_DOUBLE, k, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-   posProcX = k%nProcsX;
-   posProcY =  k/nProcsX;
+    MPI_Recv(localField, nMessages, MPI_DOUBLE, k, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    posProcX = k%nProcsX;
+    posProcY = k/nProcsY;
+
+
 
   for (int i=0; i<accuracy; i++) {
      for (int j=0; j<accuracy ; j++) {
           
                 GlobalField[proc2Glob(i,j)] = localField[i+j*(accuracy)];
-                //printf("%ld ", sizeof(localField) );
-                  printf("%d ",(int)localField[(accuracy*j+i)]);
+            
             }
-            printf("\n");
+ 
      }
  }
 
 
-    printf ("\n \n");
-      for (int j=0; j<NY; j++){
+
+     // for (int j=NY-1; j>=0; j--){
+         for (int j=0; j<NX; j++){
      for(int i=0; i<NX ; i++) {
       
        
@@ -158,3 +153,93 @@ if (process_Rank==0){
     return 0;   
 }
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+int mandelF(int N, double rmax, int i, int j) {
+    int result;
+    double a1, a2, b1, b2, a1_2, b1_2, r2, module;
+
+    rmax = 2; 
+    r2 = rmax*rmax;
+
+
+    int NX= N;
+    int NY= N;
+
+// Field of the grid to fill
+double *Field;
+
+Field =  (double*) malloc(NX*NY*sizeof(double));
+
+//Rescale the values
+double scaler = (double)10/(2*(double)N);
+double scalei = (double)10/(2*(double)N);
+//
+
+
+//Cartesian center
+double cx = (NX-1)/2*scaler;
+double cy = (NY-1)/2*scalei;
+
+
+ // real and imaginary part of the number on the given square of the grid
+double nr;
+double ni;
+
+int iterations;
+
+int print;
+int maxIt = N;
+//for  (int j=0; j<NY; j++){
+   
+    //for (int i=0; i<NX; i++) {
+
+        nr = i*scaler- cx;
+        ni = j*scalei- cy;
+
+        module = r2 -1;
+        a1 =0;
+        b1=0;
+
+        iterations =0;
+
+        while (module <r2 && iterations<maxIt){
+        //first z
+        
+
+        //z1
+        a1_2 = a1*a1 -b1*b1;
+        b1_2 = 2*a1*b1;
+
+        //z2
+        a2 = a1_2 +nr;
+        b2 = b1_2 + ni;
+
+        module = a2*a2+b2*b2;
+        
+        a1 = a2;
+        b1 = b2;
+
+        iterations ++;
+
+        }// end exit
+
+         if(iterations == maxIt) {
+           // printf("*");
+           result = 1;
+        }
+        else{
+            //printf(" ");
+            result = 0;
+        }
+
+    
+    
+   
+
+
+
+return result;
+
+}
