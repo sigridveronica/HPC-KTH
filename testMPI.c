@@ -92,9 +92,12 @@ double *localField = NULL;
         }
 
 int nMessages;
-nMessages =10;// accuracy*accuracy;
+nMessages =accuracy*accuracy;
 
-MPI_Send(localField, nMessages, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+//MPI_Send(localField, nMessages, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+MPI_Request request;
+            
+MPI_Isend(localField, nMessages, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &request);
 
 //printf("I am processor %d and indexes (%d,%d) \n", process_Rank, posProcX, posProcY);
 
