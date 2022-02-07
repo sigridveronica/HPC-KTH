@@ -16,5 +16,8 @@ mpicc mpiTEST.c -o test
 
 ```
 mpirun --oversubscribe -np 4 test
+
+mpirun --oversubscribe -np 4 ./test
+
 ```
 
