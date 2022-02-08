@@ -20,4 +20,23 @@ mpirun --oversubscribe -np 4 test
 mpirun --oversubscribe -np 4 ./test
 
 ```
+FOR MATLAB DISPLAY:
+clear all
+clc
+close all
 
+load -ascii color.txt
+
+figure,
+imagesc(color'),
+colormap colorcube
+axis square
+axis off
+
+```
+
+```
+OVERLEAF:
+https://www.overleaf.com/1145998894zzzhyhyfbqrg
+
+```
